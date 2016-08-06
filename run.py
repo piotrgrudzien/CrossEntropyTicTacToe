@@ -4,7 +4,7 @@ from Game import Game
 
 def get_single_game_reward(p):
     init = np.zeros(9)
-    game = Game(p)
+    game = Game(p, debug=False)
     while not game.finished():
         game.move()
     return game.result()
@@ -23,18 +23,29 @@ def get_reward_vector(p):
     r = np.apply_along_axis(get_total_reward, 1, p)
     return r
 
-N = 100  # number of sampled policies at each step
-M = 100  # number of games played during each round
-X = 20  # top X% policy samples are used for updating the multivariate Gaussian
+N = 300  # number of sampled policies at each step
+M = 200  # number of games played during each round
+N_ROUNDS = 100 # number of rounds
+X = 50  # top X% policy samples are used for updating the multivariate Gaussian
 mu_init = np.random.rand(9**2)  # vector of length 81
-print 'mu_init shape', mu_init.shape
 cov_init = np.random.rand(9**2, 9**2)  # 81x81 matrix
-print 'cov_init shape', cov_init.shape
 
 # sample N policies from a multivariate Gaussian
 P = np.random.multivariate_normal(mu_init, cov_init, N)  # Nx81 matrix
-print 'P shape', P.shape
 
 # calculate total reward for each policy
-R = get_reward_vector(P)  # vector of length N
+R = np.array(get_reward_vector(P))  # vector of length N
 
+for i in range(N_ROUNDS):
+    print 'Round', str(i + 1), ': Average reward', np.average(R), 'Best reward', np.max(R)
+
+    if i % 2 == 1:
+        X -= 1
+
+    Best = P[R.argsort()[-X:][::-1]]
+
+    mu = np.mean(Best, axis=0)
+    cov = np.cov(Best, rowvar=0)
+
+    P = np.random.multivariate_normal(mu, cov, N)
+    R = np.array(get_reward_vector(P))

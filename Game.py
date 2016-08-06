@@ -9,10 +9,19 @@ def is_legal(move, state):
 
 class Game:
 
-    def __init__(self, policy):
+    def __init__(self, policy, debug):
+        self._debug = debug
+        if self._debug:
+            print '*** Initializing new game ***'
         self._policy = policy
+        if self._debug:
+            print 'Policy:[', self._policy[0], ', ... ,', self._policy[-1], ']'
         self._state = np.zeros(9)
+        if self._debug:
+            print 'State:', self._state
         self._moved_last = random.choice([human, ai])
+        if self._debug:
+            print 'Moved last:', self._moved_last
         self._result = None
         self._ai_illegal = False
 
@@ -23,45 +32,48 @@ class Game:
             self._result = 1
         if self.draw():
             self._result = 0
+        if self._debug:
+            print 'Checking result:', self._result
         return self._result is not None
 
     def result(self):
         return self._result
 
     def move(self):
-        self.ai_move() if self._moved_last is human else self.human_move()
         if self._moved_last is human:
             move = self.ai_move()
             if not is_legal(move, self._state):
                 self._ai_illegal = True
                 return
             self._state[move] = 1
+            self._moved_last = ai
         else:
             self._state[self.human_move()] = -1
-
+            self._moved_last = human
+        if self._debug:
+            print 'State:', self._state
 
 
     def ai_move(self):
-        # TODO implement
-        # turn vector p into a 9x9 matrix
-        # the next move is argmax of self.state multiplied by the matrix
-        # return move
-        p_matrix = self._policy.reshape(3, 3)
+        p_matrix = self._policy.reshape(9, 9)
         probs = p_matrix.dot(self._state)
-        return np.argmax(probs)
+        move = np.argmax(probs)
+        if self._debug:
+            print 'AI move:', move
+        return move
 
     def human_move(self):
-        # TODO implement
-        # implement a random legal move
-        # sample a random index from where self.state is 0
-        # move
-        return random.choice(np.where(self._state == 0)[0])
+        move = random.choice(np.where(self._state == 0)[0])
+        if self._debug:
+            print 'Human move:', move
+        return move
 
     # merge the two functions below into one
     def human_won(self):
         # TODO implement
         # implement 8 checks
         # get the order right to make it as fast as possible
+        if self._ai_illegal: return True
         if (self._state[0] == -1) & (self._state[1] == -1) & (self._state[2] == -1): return True
         if (self._state[3] == -1) & (self._state[4] == -1) & (self._state[5] == -1): return True
         if (self._state[6] == -1) & (self._state[7] == -1) & (self._state[8] == -1): return True
