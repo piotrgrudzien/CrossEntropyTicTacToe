@@ -3,9 +3,14 @@ import random
 
 human = 'human'
 ai = 'ai'
+# Markers
+human_circle = -1  # human circle
+empty = 0.1  # empty
+ai_cross = 1  # ai cross
+
 
 def is_legal(move, state):
-    return state[move] == 0
+    return state[move] == empty
 
 class Game:
 
@@ -17,6 +22,7 @@ class Game:
         if self._debug:
             print 'Policy:[', self._policy[0], ', ... ,', self._policy[-1], ']'
         self._state = np.zeros(9)
+        self._state.fill(empty)
         if self._debug:
             print 'State:', self._state
         self._moved_last = random.choice([human, ai])
@@ -45,14 +51,13 @@ class Game:
             if not is_legal(move, self._state):
                 self._ai_illegal = True
                 return
-            self._state[move] = 1
+            self._state[move] = ai_cross
             self._moved_last = ai
         else:
-            self._state[self.human_move()] = -1
+            self._state[self.human_move()] = human_circle
             self._moved_last = human
         if self._debug:
             print 'State:', self._state
-
 
     def ai_move(self):
         p_matrix = self._policy.reshape(9, 9)
@@ -63,7 +68,7 @@ class Game:
         return move
 
     def human_move(self):
-        move = random.choice(np.where(self._state == 0)[0])
+        move = random.choice(np.where(self._state == empty)[0])
         if self._debug:
             print 'Human move:', move
         return move
@@ -99,4 +104,4 @@ class Game:
         return False
 
     def draw(self):
-        return 0 not in self._state
+        return empty not in self._state

@@ -1,10 +1,10 @@
 import numpy as np
+import pickle
 from Game import Game
 
 
-def get_single_game_reward(p):
-    init = np.zeros(9)
-    game = Game(p, debug=False)
+def get_single_game_reward(p, debug):
+    game = Game(p, debug=debug)
     while not game.finished():
         game.move()
     return game.result()
@@ -14,7 +14,7 @@ def get_total_reward(p):
     # argument is a vector of length 81 (sample policy)
     r = 0
     for i in range(0, M):
-        r += get_single_game_reward(p)
+        r += get_single_game_reward(p, debug=False)
     return r
 
 
@@ -23,10 +23,10 @@ def get_reward_vector(p):
     r = np.apply_along_axis(get_total_reward, 1, p)
     return r
 
-N = 300  # number of sampled policies at each step
-M = 200  # number of games played during each round
-N_ROUNDS = 100 # number of rounds
-X = 50  # top X% policy samples are used for updating the multivariate Gaussian
+N = 500  # number of sampled policies at each step
+M = 300  # number of games played during each round
+N_ROUNDS = 100  # number of rounds
+X = 50  # top X policy samples are used for updating the multivariate Gaussian
 mu_init = np.random.rand(9**2)  # vector of length 81
 cov_init = np.random.rand(9**2, 9**2)  # 81x81 matrix
 
@@ -49,3 +49,10 @@ for i in range(N_ROUNDS):
 
     P = np.random.multivariate_normal(mu, cov, N)
     R = np.array(get_reward_vector(P))
+
+Solution = np.random.multivariate_normal(mu, cov, 1)
+pickle.dump(Solution, open('Solution.p', 'wb'))
+
+for i in range(5):
+    get_single_game_reward(Solution, debug=True)
+
