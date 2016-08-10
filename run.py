@@ -24,9 +24,9 @@ def get_reward_vector(p):
     return r
 
 N = 500  # number of sampled policies at each step
-M = 300  # number of games played during each round
-N_ROUNDS = 100  # number of rounds
-X = 50  # top X policy samples are used for updating the multivariate Gaussian
+M = 100  # number of games played during each round
+N_ROUNDS = 200  # number of rounds
+X = 100  # top X policy samples are used for updating the multivariate Gaussian
 mu_init = np.random.rand(9**2)  # vector of length 81
 cov_init = np.random.rand(9**2, 9**2)  # 81x81 matrix
 
@@ -38,9 +38,6 @@ R = np.array(get_reward_vector(P))  # vector of length N
 
 for i in range(N_ROUNDS):
     print 'Round', str(i + 1), ': Average reward', np.average(R), 'Best reward', np.max(R)
-
-    if i % 2 == 1:
-        X -= 1
 
     Best = P[R.argsort()[-X:][::-1]]
 

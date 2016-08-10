@@ -7,10 +7,12 @@ ai = 'ai'
 human_circle = -1  # human circle
 empty = 0.1  # empty
 ai_cross = 1  # ai cross
+triples = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
 
 
 def is_legal(move, state):
     return state[move] == empty
+
 
 class Game:
 
@@ -19,12 +21,10 @@ class Game:
         if self._debug:
             print '*** Initializing new game ***'
         self._policy = policy
-        if self._debug:
-            print 'Policy:[', self._policy[0], ', ... ,', self._policy[-1], ']'
         self._state = np.zeros(9)
         self._state.fill(empty)
         if self._debug:
-            print 'State:', self._state
+            print self._state
         self._moved_last = random.choice([human, ai])
         if self._debug:
             print 'Moved last:', self._moved_last
@@ -57,7 +57,7 @@ class Game:
             self._state[self.human_move()] = human_circle
             self._moved_last = human
         if self._debug:
-            print 'State:', self._state
+            print self._state.reshape(3, 3)
 
     def ai_move(self):
         p_matrix = self._policy.reshape(9, 9)
@@ -73,34 +73,23 @@ class Game:
             print 'Human move:', move
         return move
 
+    # def human_move_one_ahead(self):
+    #     first check one step wins
+    #     then check one step loses
+    #     if neither then random move
+
     # merge the two functions below into one
     def human_won(self):
-        # TODO implement
-        # implement 8 checks
-        # get the order right to make it as fast as possible
         if self._ai_illegal: return True
-        if (self._state[0] == -1) & (self._state[1] == -1) & (self._state[2] == -1): return True
-        if (self._state[3] == -1) & (self._state[4] == -1) & (self._state[5] == -1): return True
-        if (self._state[6] == -1) & (self._state[7] == -1) & (self._state[8] == -1): return True
-        if (self._state[0] == -1) & (self._state[3] == -1) & (self._state[6] == -1): return True
-        if (self._state[1] == -1) & (self._state[4] == -1) & (self._state[7] == -1): return True
-        if (self._state[2] == -1) & (self._state[5] == -1) & (self._state[8] == -1): return True
-        if (self._state[0] == -1) & (self._state[4] == -1) & (self._state[8] == -1): return True
-        if (self._state[2] == -1) & (self._state[4] == -1) & (self._state[6] == -1): return True
+        for triple in triples:
+            if (self._state[triple[0]] == human_circle) & (self._state[triple[1]] == human_circle) & (self._state[triple[2]] == human_circle):
+                return True
         return False
 
     def ai_won(self):
-        # TODO implement
-        # implement 8 checks
-        # get the order right to make it as fast as possible
-        if (self._state[0] == 1) & (self._state[1] == 1) & (self._state[2] == 1): return True
-        if (self._state[3] == 1) & (self._state[4] == 1) & (self._state[5] == 1): return True
-        if (self._state[6] == 1) & (self._state[7] == 1) & (self._state[8] == 1): return True
-        if (self._state[0] == 1) & (self._state[3] == 1) & (self._state[6] == 1): return True
-        if (self._state[1] == 1) & (self._state[4] == 1) & (self._state[7] == 1): return True
-        if (self._state[2] == 1) & (self._state[5] == 1) & (self._state[8] == 1): return True
-        if (self._state[0] == 1) & (self._state[4] == 1) & (self._state[8] == 1): return True
-        if (self._state[2] == 1) & (self._state[4] == 1) & (self._state[6] == 1): return True
+        for triple in triples:
+            if (self._state[triple[0]] == ai_cross) & (self._state[triple[1]] == ai_cross) & (self._state[triple[2]] == ai_cross):
+                return True
         return False
 
     def draw(self):
