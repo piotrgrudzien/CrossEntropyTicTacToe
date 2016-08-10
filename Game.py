@@ -14,10 +14,29 @@ def is_legal(move, state):
     return state[move] == empty
 
 
+def check_one_ahead(state, marker, triples):
+    move = None
+    for triple in triples:
+        if state[triple[0]] == marker:
+            if (state[triple[1]] == marker) & (state[triple[2]] == empty):
+                move = triple[2]
+                break
+            elif (state[triple[2]] == marker) & (state[triple[1]] == empty):
+                move = triple[1]
+                break
+        elif (state[triple[1] == marker]) & (state[triple[2] == marker]) & (state[triple[0]] == empty):
+            move = triple[0]
+            break
+    return move
+
+
 class Game:
 
-    def __init__(self, policy, debug):
+    def __init__(self, policy, debug, one_ahead):
         self._debug = debug
+        self._one_ahead = one_ahead
+        self._triples = triples
+        random.shuffle(self._triples)
         if self._debug:
             print '*** Initializing new game ***'
         self._policy = policy
@@ -68,17 +87,19 @@ class Game:
         return move
 
     def human_move(self):
-        move = random.choice(np.where(self._state == empty)[0])
+        move = None
+        if self._one_ahead:
+            # check if can win in one move
+            move = check_one_ahead(self._state, human_circle, self._triples)
+            if move is None:
+                # check if might loose in one move
+                move = check_one_ahead(self._state, ai_cross, self._triples)
+        if move is None:
+            move = random.choice(np.where(self._state == empty)[0])
         if self._debug:
             print 'Human move:', move
         return move
 
-    # def human_move_one_ahead(self):
-    #     first check one step wins
-    #     then check one step loses
-    #     if neither then random move
-
-    # merge the two functions below into one
     def human_won(self):
         if self._ai_illegal: return True
         for triple in triples:

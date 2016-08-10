@@ -3,8 +3,8 @@ import pickle
 from Game import Game
 
 
-def get_single_game_reward(p, debug):
-    game = Game(p, debug=debug)
+def get_single_game_reward(p, debug, one_ahead):
+    game = Game(p, debug=debug, one_ahead=one_ahead)
     while not game.finished():
         game.move()
     return game.result()
@@ -14,7 +14,7 @@ def get_total_reward(p):
     # argument is a vector of length 81 (sample policy)
     r = 0
     for i in range(0, M):
-        r += get_single_game_reward(p, debug=False)
+        r += get_single_game_reward(p, debug=False, one_ahead=HUMAN_ONE_MOVE_AHEAD)
     return r
 
 
@@ -29,6 +29,7 @@ N_ROUNDS = 200  # number of rounds
 X = 100  # top X policy samples are used for updating the multivariate Gaussian
 mu_init = np.random.rand(9**2)  # vector of length 81
 cov_init = np.random.rand(9**2, 9**2)  # 81x81 matrix
+HUMAN_ONE_MOVE_AHEAD = True
 
 # sample N policies from a multivariate Gaussian
 P = np.random.multivariate_normal(mu_init, cov_init, N)  # Nx81 matrix
@@ -51,5 +52,5 @@ Solution = np.random.multivariate_normal(mu, cov, 1)
 pickle.dump(Solution, open('Solution.p', 'wb'))
 
 for i in range(5):
-    get_single_game_reward(Solution, debug=True)
+    get_single_game_reward(Solution, debug=True, one_ahead=HUMAN_ONE_MOVE_AHEAD)
 
