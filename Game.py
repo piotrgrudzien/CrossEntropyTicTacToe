@@ -14,9 +14,9 @@ def is_legal(move, state):
     return state[move] == empty
 
 
-def check_one_ahead(state, marker, triples):
+def check_one_ahead(state, marker, this_triples):
     move = None
-    for triple in triples:
+    for triple in this_triples:
         if state[triple[0]] == marker:
             if (state[triple[1]] == marker) & (state[triple[2]] == empty):
                 move = triple[2]
@@ -24,11 +24,23 @@ def check_one_ahead(state, marker, triples):
             elif (state[triple[2]] == marker) & (state[triple[1]] == empty):
                 move = triple[1]
                 break
-        elif (state[triple[1] == marker]) & (state[triple[2] == marker]) & (state[triple[0]] == empty):
+        elif (state[triple[1]] == marker) & (state[triple[2]] == marker) & (state[triple[0]] == empty):
             move = triple[0]
             break
     return move
 
+
+def check_two_ahead(state, marker, this_triples):
+    move = None
+    for triple in this_triples:
+        if state[triple[0]] == marker:
+            if (state[triple[1]] == empty) & (state[triple[2]] == empty):
+                move = triple[2]
+                break
+        elif (state[triple[0]] == empty) & (((state[triple[1]] == marker) & (state[triple[2]] == empty)) | ((state[triple[1]] == empty) & (state[triple[2]] == marker))):
+            move = triple[0]
+            break
+    return move
 
 class Game:
 
@@ -53,9 +65,9 @@ class Game:
     def finished(self):
         if self.human_won():
             self._result = -1
-        if self.ai_won():
+        elif self.ai_won():
             self._result = 1
-        if self.draw():
+        elif self.draw():
             self._result = 0
         if self._debug:
             print 'Checking result:', self._result
@@ -94,6 +106,9 @@ class Game:
             if move is None:
                 # check if might loose in one move
                 move = check_one_ahead(self._state, ai_cross, self._triples)
+                if move is None:
+                # choose a move where a win is two steps away
+                    move = check_two_ahead(self._state, human_circle, self._triples)
         if move is None:
             move = random.choice(np.where(self._state == empty)[0])
         if self._debug:

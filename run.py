@@ -25,7 +25,7 @@ def get_reward_vector(p):
 
 N = 500  # number of sampled policies at each step
 M = 100  # number of games played during each round
-N_ROUNDS = 200  # number of rounds
+N_ROUNDS = 10  # number of rounds
 X = 100  # top X policy samples are used for updating the multivariate Gaussian
 mu_init = np.random.rand(9**2)  # vector of length 81
 cov_init = np.random.rand(9**2, 9**2)  # 81x81 matrix
