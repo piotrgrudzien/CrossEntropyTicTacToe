@@ -10,6 +10,10 @@ ai_cross = 1  # ai cross
 triples = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
 
 
+def inv_get_move(move):
+    return move + 1
+
+
 def is_legal(move, state):
     return state[move] == empty
 
@@ -55,7 +59,7 @@ class Game:
         self._state = np.zeros(9)
         self._state.fill(empty)
         if self._debug:
-            print self._state
+            print str(self._state.astype(int).reshape(3, 3)).replace('0.1', '0')
         self._moved_last = random.choice([human, ai])
         if self._debug:
             print 'Moved last:', self._moved_last
@@ -70,7 +74,12 @@ class Game:
         elif self.draw():
             self._result = 0
         if self._debug:
-            print 'Checking result:', self._result
+            if self._result == 1:
+                print 'AI won!'
+            elif self._result == -1:
+                print 'Human won!'
+            elif self._result == 0:
+                print 'Draw!'
         return self._result is not None
 
     def result(self):
@@ -88,14 +97,14 @@ class Game:
             self._state[self.human_move()] = human_circle
             self._moved_last = human
         if self._debug:
-            print self._state.reshape(3, 3)
+            print str(self._state.astype(int).reshape(3, 3)).replace('0.1', '0')
 
     def ai_move(self):
         p_matrix = self._policy.reshape(9, 9)
         probs = p_matrix.dot(self._state)
         move = np.argmax(probs)
         if self._debug:
-            print 'AI move:', move
+            print 'AI move:', inv_get_move(move)
         return move
 
     def human_move(self):
@@ -112,7 +121,7 @@ class Game:
         if move is None:
             move = random.choice(np.where(self._state == empty)[0])
         if self._debug:
-            print 'Human move:', move
+            print 'Human move:', inv_get_move(move)
         return move
 
     def human_won(self):

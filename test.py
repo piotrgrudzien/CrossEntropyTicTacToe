@@ -141,7 +141,7 @@ class GameMethods(unittest.TestCase):
         g._state = get_state(human_circles=[1, 3, 4, 6, 8], ai_crosses=[2, 5, 7, 9])
         self.assertTrue(g.draw())
 
-s = pickle.load(open('Solution.p', 'rb'))
+s = pickle.load(open('solutions/Solution2016-08-11|22-37-23.p', 'rb'))
 random.shuffle(triples)
 
 suite = unittest.TestLoader().loadTestsFromTestCase(GameMethods)
