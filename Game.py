@@ -115,12 +115,12 @@ class Game:
             if move is None:
                 # check if might loose in one move
                 move = check_one_ahead(self._state, ai_cross, self._triples)
-                # if available hit the middle square
-                if self._state[4] == empty:
-                    move = 4
-                    if move is None:
-                        # choose a move where a win is two steps away
-                        move = check_two_ahead(self._state, human_circle, self._triples)
+                # if available hit the middle square with prob 50%
+            if (move is None) & (self._state[4] == empty) & (random.random() > 0.5):
+                move = 4
+            if move is None:
+                # choose a move where a win is two steps away
+                move = check_two_ahead(self._state, human_circle, self._triples)
         if move is None:
             move = random.choice(np.where(self._state == empty)[0])
         if self._debug:
